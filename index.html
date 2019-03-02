@@ -1,0 +1,17 @@
+<html>
+<head>
+<script type="javascript">
+function call_cb() {
+  try {
+     window.external.invoke('some arg');
+  } catch (e) {
+     alert(e);
+  }
+}
+</script>
+</head>
+<body>
+<h1>Hello World</h1>
+<input type="button" value="Call C" onclick="window.external.invoke('some arg')";/>
+</body>
+</html>
