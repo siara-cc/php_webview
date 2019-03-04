@@ -1,0 +1,11 @@
+*
+
+!config.m4
+!config.w32
+!php_webview.h
+!index.html
+!webview.c
+!webview.h
+!main.php
+!.gitignore
+
