@@ -1,4 +1,3 @@
-
 PHP_ARG_ENABLE(webview, whether to enable
 WebView support,
 [ --enable-webview   Enable WebView support])

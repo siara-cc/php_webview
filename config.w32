@@ -1,7 +1,7 @@
-ARG_ENABLE(webview, whether to enable
-WebView support,
-[ --enable-webview   Enable WebView support])
+ARG_ENABLE("webview", "webview support", "no");
 if (PHP_WEBVIEW != "no") {
-    EXTENSION("webview", "webview.c");
+    EXTENSION("webview", "webview.c", true);
+    AC_DEFINE('HAVE_WEBVIEW', 1);
+    ADD_FLAG("CFLAGS", "/D WEBVIEW_WINAPI=1");
+    ADD_FLAG("LDFLAGS", "ole32.lib comctl32.lib oleaut32.lib uuid.lib gdi32.lib advapi32.lib");
 }
-

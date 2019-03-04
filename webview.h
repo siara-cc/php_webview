@@ -56,7 +56,7 @@ struct webview_priv {
 #elif defined(WEBVIEW_WINAPI)
 #define CINTERFACE
 #include <windows.h>
-
+#include <objbase.h>
 #include <commctrl.h>
 #include <exdisp.h>
 #include <mshtmhst.h>

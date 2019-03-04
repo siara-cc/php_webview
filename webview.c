@@ -2,12 +2,10 @@
 #include "config.h"
 #endif
 #define WEBVIEW_IMPLEMENTATION
-#include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
 #include "php.h"
 #include "php_webview.h"
-#define WEBVIEW_COCOA 1
 #include "webview.h"
 
 const int pass_rest_by_reference = 0;
@@ -26,7 +24,7 @@ struct webview wv = {
 };
 
 ZEND_BEGIN_ARG_INFO(NoArgByReference, pass_rest_by_reference)
-   ZEND_ARG_PASS_INFO(pass_arg_by_reference)
+   ZEND_ARG_PASS_INFO(0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry webview_functions[] = {
@@ -105,23 +103,37 @@ void my_cb(struct webview *w, const char *arg) {
   //snprintf(msg, sizeof(msg), "alert('%s')", arg);
 
   zval p1;
+#if ZEND_MODULE_API_NO >= 20010901
+  ZVAL_STRING(&p1, arg);
+#else
   INIT_ZVAL(p1);
   ZVAL_STRING(&p1, arg, 1);
+#endif
   zval *params = { &p1 };
-  zend_uint param_count = 1;
+  //zend_uint param_count = 1;
   zval retval;
 
   zval function_name;
+#if ZEND_MODULE_API_NO >= 20010901
+  ZVAL_STRING(&function_name, cbFnStr);
+#else
   INIT_ZVAL(function_name);
   ZVAL_STRING(&function_name, cbFnStr, 1);
+#endif
 
+#if ZEND_MODULE_API_NO >= 20010901
   if (call_user_function(CG(function_table), NULL, // no object
-        &function_name, &retval, param_count,
+        &function_name, &retval, 1,
+        params TSRMLS_CC) == SUCCESS) {
+#else
+  if (call_user_function(CG(function_table), NULL, // no object
+        &function_name, &retval, 1,
         &params TSRMLS_CC) == SUCCESS) {
+#endif
       //printf("Success returning from PHP\n");
       if (Z_TYPE_P(&retval) == IS_STRING) {
         char *cstr;
-        int cstrlen;
+        size_t cstrlen;
         cstr = Z_STRVAL_P(&retval);
         cstrlen = Z_STRLEN_P(&retval);
         cstr[cstrlen] = 0;

@@ -7,6 +7,6 @@ PHP_FUNCTION(webview);
 PHP_FUNCTION(webview_eval);
 
 extern zend_module_entry webview_module_entry;
-#define phpext_hello_ptr &webview_module_entry
+#define phpext_webview_ptr &webview_module_entry
 
 #endif
