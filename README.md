@@ -6,4 +6,19 @@ While I have very little experience with PHP, I made this to be part of a larger
 
 # Usage
 
+Mac OS:
+
+```sh
+phpize
+./configure CFLAGS="-DWEBVIEW_COCOA=1 -framework WebKit"
+make
+```
+
+Windows:
+
+```sh
+buildconf
+./configure --disable-all -enable-webview
+nmake
+```
 

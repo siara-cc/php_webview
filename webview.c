@@ -14,7 +14,7 @@ const int pass_arg_by_reference = 0;
 char *cbFnStr = NULL;
 void my_cb(struct webview *w, const char *arg);
 struct webview wv = {
-    .title = "Title",
+    .title = "Webview on PHP",
     .url = "data:text/html,%3C%21doctype%20html%3E%3Chtml%3E%3Cbody%3EHello%20World%3C%2Fbody%3E%3C%2Fhtml%3E",
     .width = 800,
     .height = 600,
@@ -103,7 +103,7 @@ void my_cb(struct webview *w, const char *arg) {
   //snprintf(msg, sizeof(msg), "alert('%s')", arg);
 
   zval p1;
-#if ZEND_MODULE_API_NO >= 20010901
+#if PHP_MAJOR_VERSION >= 7
   ZVAL_STRING(&p1, arg);
 #else
   INIT_ZVAL(p1);
@@ -114,14 +114,14 @@ void my_cb(struct webview *w, const char *arg) {
   zval retval;
 
   zval function_name;
-#if ZEND_MODULE_API_NO >= 20010901
+#if PHP_MAJOR_VERSION >= 7
   ZVAL_STRING(&function_name, cbFnStr);
 #else
   INIT_ZVAL(function_name);
   ZVAL_STRING(&function_name, cbFnStr, 1);
 #endif
 
-#if ZEND_MODULE_API_NO >= 20010901
+#if PHP_MAJOR_VERSION >= 7
   if (call_user_function(CG(function_table), NULL, // no object
         &function_name, &retval, 1,
         params TSRMLS_CC) == SUCCESS) {
