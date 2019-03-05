@@ -1,9 +1,9 @@
 <?php
 
 function cb_from_webview($arg) {
-  webview_eval("document.write('First script run from PHP')");
+  webview_eval("document.write('<div id=d1>First script run from PHP</div>')");
   echo "In PHP:", $arg, "\n";
-  return "var dv = document.createElement('div'); dv.innerHTML='Second script run from PHP'; document.body.append(dv);";
+  return "document.body.innerHTML += 'Second script run from PHP';";
 }
 
 webview("file://" . getcwd() . "/index.html", "cb_from_webview");

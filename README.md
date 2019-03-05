@@ -18,7 +18,7 @@ Windows:
 
 ```sh
 buildconf
-./configure --disable-all -enable-webview
+./configure --disable-all --enable-cli --enable-webview
 nmake
 ```
 
