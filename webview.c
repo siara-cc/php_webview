@@ -102,10 +102,11 @@ void my_cb(struct webview *w, const char *arg) {
   //snprintf(msg, sizeof(msg), "alert('%s')", arg);
 
   zval p1;
-  INIT_ZVAL(p1);
 #if PHP_MAJOR_VERSION >= 7
+  ZVAL_NULL(&p1);
   ZVAL_STRING(&p1, arg);
 #else
+  INIT_ZVAL(&p1);
   ZVAL_STRING(&p1, arg, 1);
 #endif
   zval *params = { &p1 };
@@ -113,10 +114,11 @@ void my_cb(struct webview *w, const char *arg) {
   zval retval;
 
   zval function_name;
-  INIT_ZVAL(function_name);
 #if PHP_MAJOR_VERSION >= 7
+  ZVAL_NULL(&function_name);
   ZVAL_STRING(&function_name, Z_STRVAL_P(cbFnStr));
 #else
+  INIT_ZVAL(function_name);
   ZVAL_STRING(&function_name, Z_STRVAL_P(cbFnStr), 1);
 #endif
 
