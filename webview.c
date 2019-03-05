@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include "php.h"
+#include "php_ini.h"
 #include "php_webview.h"
 #include "webview.h"
 
@@ -101,7 +102,7 @@ void my_cb(struct webview *w, const char *arg) {
   //snprintf(msg, sizeof(msg), "alert('%s')", arg);
 
   zval p1;
-  ZVAL_NULL(&p1);
+  INIT_ZVAL(p1);
 #if PHP_MAJOR_VERSION >= 7
   ZVAL_STRING(&p1, arg);
 #else
@@ -112,16 +113,22 @@ void my_cb(struct webview *w, const char *arg) {
   zval retval;
 
   zval function_name;
-  ZVAL_NULL(&function_name);
+  INIT_ZVAL(function_name);
 #if PHP_MAJOR_VERSION >= 7
   ZVAL_STRING(&function_name, Z_STRVAL_P(cbFnStr));
 #else
-  ZVAL_STRING(&function_name, Z_STRVAL(cbFnStr), 1);
+  ZVAL_STRING(&function_name, Z_STRVAL_P(cbFnStr), 1);
 #endif
 
+#if PHP_MAJOR_VERSION >= 7
   if (call_user_function(CG(function_table), NULL, // no object
         &function_name, &retval, 1,
         params TSRMLS_CC) == SUCCESS) {
+#else
+  if (call_user_function(CG(function_table), NULL, // no object
+        &function_name, &retval, 1,
+        &params TSRMLS_CC) == SUCCESS) {
+#endif
       //printf("Success returning from PHP\n");
       if (Z_TYPE_P(&retval) == IS_STRING) {
         char *cstr;
@@ -138,6 +145,5 @@ void my_cb(struct webview *w, const char *arg) {
   // free the zvals
   zval_dtor(&function_name);
   zval_dtor(&p1);
-
 }
 
