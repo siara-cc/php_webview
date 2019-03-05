@@ -106,7 +106,7 @@ void my_cb(struct webview *w, const char *arg) {
   ZVAL_NULL(&p1);
   ZVAL_STRING(&p1, arg);
 #else
-  INIT_ZVAL(&p1);
+  INIT_ZVAL(p1);
   ZVAL_STRING(&p1, arg, 1);
 #endif
   zval *params = { &p1 };
