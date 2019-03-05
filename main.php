@@ -1,4 +1,4 @@
-<?
+<?php
 
 function cb_from_webview($arg) {
   webview_eval("document.write('First script run from PHP')");

@@ -9,9 +9,8 @@
 #include "webview.h"
 
 const int pass_rest_by_reference = 0;
-const int pass_arg_by_reference = 0;
 
-char *cbFnStr = NULL;
+zval *cbFnStr;
 void my_cb(struct webview *w, const char *arg);
 struct webview wv = {
     .title = "Webview on PHP",
@@ -23,14 +22,18 @@ struct webview wv = {
     .external_invoke_cb = my_cb,
 };
 
-ZEND_BEGIN_ARG_INFO(NoArgByReference, pass_rest_by_reference)
+ZEND_BEGIN_ARG_INFO(NoArgByReference1, pass_rest_by_reference)
+   ZEND_ARG_PASS_INFO(0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO(NoArgByReference2, pass_rest_by_reference)
    ZEND_ARG_PASS_INFO(0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry webview_functions[] = {
-    PHP_FE(webview, NoArgByReference)
-    PHP_FE(webview_eval, NoArgByReference)
-    {NULL, NULL, NULL}
+    PHP_FE(webview, NoArgByReference1)
+    PHP_FE(webview_eval, NoArgByReference2)
+    PHP_FE_END
 };
 
 zend_module_entry webview_module_entry = {
@@ -56,16 +59,13 @@ ZEND_GET_MODULE(webview)
 
 PHP_FUNCTION(webview)
 {
-  char *urlStr = NULL;
-  int lenURL;
-  int lenCBFn;
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
-        &urlStr, &lenURL, &cbFnStr, &lenCBFn) == FAILURE) {
+  zval *urlStr = NULL;
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz",
+        &urlStr, &cbFnStr) == FAILURE) {
     printf("Failed\n");
     return;
   }
-  urlStr[lenURL] = 0;
-  wv.url = urlStr;
+  wv.url = Z_STRVAL_P(urlStr);
   int blocking = 1;
   // Create webview window using the provided options
   webview_init(&wv);
@@ -85,15 +85,13 @@ PHP_FUNCTION(webview)
 PHP_FUNCTION(webview_eval)
 {
 
-  char *scr = NULL;
-  int lenScr;
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
-        &scr, &lenScr) == FAILURE) {
+  zval *scr = NULL;
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z",
+        &scr) == FAILURE) {
     printf("Failed\n");
     return;
   }
-  scr[lenScr] = 0;
-  webview_eval(&wv, scr);
+  webview_eval(&wv, Z_STRVAL_P(scr));
 
 }
 
@@ -103,10 +101,10 @@ void my_cb(struct webview *w, const char *arg) {
   //snprintf(msg, sizeof(msg), "alert('%s')", arg);
 
   zval p1;
+  ZVAL_NULL(&p1);
 #if PHP_MAJOR_VERSION >= 7
   ZVAL_STRING(&p1, arg);
 #else
-  INIT_ZVAL(p1);
   ZVAL_STRING(&p1, arg, 1);
 #endif
   zval *params = { &p1 };
@@ -114,22 +112,16 @@ void my_cb(struct webview *w, const char *arg) {
   zval retval;
 
   zval function_name;
+  ZVAL_NULL(&function_name);
 #if PHP_MAJOR_VERSION >= 7
-  ZVAL_STRING(&function_name, cbFnStr);
+  ZVAL_STRING(&function_name, Z_STRVAL_P(cbFnStr));
 #else
-  INIT_ZVAL(function_name);
-  ZVAL_STRING(&function_name, cbFnStr, 1);
+  ZVAL_STRING(&function_name, Z_STRVAL(cbFnStr), 1);
 #endif
 
-#if PHP_MAJOR_VERSION >= 7
   if (call_user_function(CG(function_table), NULL, // no object
         &function_name, &retval, 1,
         params TSRMLS_CC) == SUCCESS) {
-#else
-  if (call_user_function(CG(function_table), NULL, // no object
-        &function_name, &retval, 1,
-        &params TSRMLS_CC) == SUCCESS) {
-#endif
       //printf("Success returning from PHP\n");
       if (Z_TYPE_P(&retval) == IS_STRING) {
         char *cstr;
