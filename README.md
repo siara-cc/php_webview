@@ -21,6 +21,15 @@ buildconf
 ./configure --disable-all -enable-webview
 nmake
 ```
+
+Linux:
+
+```sh
+phpize
+./configure CFLAGS="-DWEBVIEW_GTK=1 `pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.0`"
+make
+```
+
 # Screenshot
 
 | ![](ss_php_1.png?raw=true) | ![](ss_php_2.png?raw=true) |
