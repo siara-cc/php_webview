@@ -6,9 +6,35 @@ This WebView extension for PHP is built upon [WebView for C and Go](https://gith
 
 PHP has always been a server side HTML preprocessor language.  Since it has a huge deployment base and developer base, it makes sense to make it available on the Front-end to build rich and responsive desktop applications.  This repository is first step towards this.
 
+# How it works
+
+This repository makes WebView available as a PHP extension.  There are two functions provided by the extension: `webview()` and `webview_eval()`.
+
+Giving below is the PHP code of `main.php` which makes the API self-explanatory:
+
+```php
+<?php
+
+function cb_from_webview($arg) {
+  webview_eval("document.write('<div id=d1>First script run from PHP</div>')");
+  echo "In PHP:", $arg, "\n";
+  return "document.body.innerHTML += 'Second script run from PHP';";
+}
+
+webview("file://" . getcwd() . "/index.html", "cb_from_webview");
+
+?>
+```
+
+`cb_from_webview()` is passed as second parameter to `webview()` function, which opens the URL specified in the first parameter. Whenever the script (JS) in the HTML page (index.html) calls `window.external.invoke(arg)`, the PHP callback function (`cb_from_webview()`) is invoked with the argument.
+
+The callback function can choose to call `webview_eval()` as shown above.  Whatever string returned by this function is run as script.  If empty string is returned, it is not evaluated.
+
+The callback function acts as a bridge between Javascript and PHP and may be called using JSON string as argument and may indicate the context of call (such as onload, onclick etc.) and corresponding data for the request or callback.
+
 # Usage
 
-This repository makes WebView available as a PHP extension.  The procedure to build it differs from OS to OS.
+The procedure to build the extension differs from OS to OS.
 
 ## Mac OS
 
